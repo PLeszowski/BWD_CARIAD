@@ -44,7 +44,7 @@ class DfCollector:
                 return False
 
             # increment event counters
-            self.event_counter_dict[falisafe] += 1
+            # self.event_counter_dict[falisafe] += 1
 
             # adapt file_dict so that keys have full file names
             if not file_dict:
@@ -142,10 +142,20 @@ class DfCollector:
 
             try:
                 # Add event counter to dataframe
-                temp_df.loc[:, falisafe] = self.event_counter_dict[falisafe]
+                # temp_df.loc[:, falisafe] = self.event_counter_dict[falisafe]
                 temp_df.fillna(0, inplace=True)
             except Exception as e:
                 print(f'DfCollector: {self.dt_str}: ERROR: adding failsafe counter')
+                logger.exception(e)
+                return False
+
+            # copy label and signal values from df to temp_df
+            try:
+                for kpi_event in c.FAILED_KPI_EVENTS:
+                    if kpi_event in df.columns:
+                        temp_df[kpi_event] = df[kpi_event]
+            except Exception as e:
+                print(f'DfCollector: {self.dt_str}: ERROR: copy label and signal values from df to temp_df')
                 logger.exception(e)
                 return False
 

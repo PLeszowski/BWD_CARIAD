@@ -15,6 +15,7 @@ from event_counter import EventCounter
 from datetime import datetime
 import re
 import sys
+import math
 
 cp60_spec_path = c.CP60_SPEC_PATH
 pickles_f_list = c.CP_60_PICKLES_FILE_LIST
@@ -59,12 +60,20 @@ class MainLogic:
         self.path_to_partials_exact_up_down = os.path.join(self._output, 'spi_exact_up_down')
         os.makedirs(self.path_to_partials_exact_up_down, exist_ok=True)
 
+        self.path_to_partials_degrade = os.path.join(self._output, 'spi_degrade')
+        os.makedirs(self.path_to_partials_degrade, exist_ok=True)
+        # simulated flexray
+        self.path_to_partials_flexray = os.path.join(self._output, 'flexray')
+        os.makedirs(self.path_to_partials_flexray, exist_ok=True)
+
         self._partials_any = []
         self._partials_backup = []
         self._partials_backup_up_down = []
         self._partials_backup_any = []
         self._partials_exact = []
         self._partials_exact_up_down = []
+        self._partials_degrade = []
+        self._partials_flexray = []
 
     def run(self):
         self._main()
@@ -85,6 +94,8 @@ class MainLogic:
             spi_backup_any = Sequencer.return_partials('backup_any')
             spi_exact = Sequencer.return_partials('exact')
             spi_exact_up_down = Sequencer.return_partials('exact_up_down')
+            spi_degrade = Sequencer.return_partials('degrade')
+            flexray = Sequencer.return_partials('flexray')
 
             self._partials_any.append(spi_any)
             self._partials_backup.append(spi_backup)
@@ -92,6 +103,8 @@ class MainLogic:
             self._partials_backup_any.append(spi_backup_any)
             self._partials_exact.append(spi_exact)
             self._partials_exact_up_down.append(spi_exact_up_down)
+            self._partials_degrade.append(spi_degrade)
+            self._partials_flexray.append(flexray)
 
             self.name = os.path.basename(self.name)
             self.save_to_json(self.path_to_partials_any, self._partials_any, self.name)
@@ -100,6 +113,8 @@ class MainLogic:
             self.save_to_json(self.path_to_partials_backup_any, self._partials_backup_any, self.name)
             self.save_to_json(self.path_to_partials_exact, self._partials_exact, self.name)
             self.save_to_json(self.path_to_partials_exact_up_down, self._partials_exact_up_down, self.name)
+            self.save_to_json(self.path_to_partials_degrade, self._partials_degrade, self.name)
+            self.save_to_json(self.path_to_partials_flexray, self._partials_flexray, self.name)
 
             df_collector.divide_df_if_max_len()  # -------------------------------------------------------------------------
             df_collector.save_dfs()  # -------------------------------------------------------------------------------------
@@ -158,13 +173,14 @@ class Sequencer:
     partials_backup_any = []
     partials_exact = []
     partials_exact_up_down = []
+    partials_degrade = []
+    partials_flexray = []
 
-    def __init__(self, files, itrks, log, dt_str, filtering=None, ):
+    def __init__(self, files, itrks, log, dt_str, filtering=None):
         self._logger = log
         self._file_list = files
         self._itrks = itrks
         self.dt_str = dt_str
-        self._file_name_pattern = c.FILE_NAME_PATTERN
         self.filtering = filtering
         self.data_lab = None
         self.data_sys = None
@@ -178,10 +194,12 @@ class Sequencer:
         self.cal_check = CalCheck(self._file_list)
         self.split_list = EventCounter(self._file_list, dt_str)
         self.day_time_dict = c.DAYTIME_DICT
+        self.debounce_frames_fn = math.ceil(c.DEBOUNCE_TIME_FN_S / (16 / c.FREQUENCY))  # label is every 16th frame
+        self.debounce_frames_fp = math.ceil(c.DEBOUNCE_TIME_FP_S / (16 / c.FREQUENCY))  # label is every 16th frame
 
-    def run(self, eth=False):
+    def run(self):
         print_and_log(self._logger, "....Start reading system data from - raw")
-        self.data_sys = p_i_opener.read_from_raw(sorted(self._file_list.values()), logger=self._logger, eth=eth)
+        self.data_sys = p_i_opener.read_from_raw(sorted(self._file_list.values()), logger=self._logger, fr=c.FLEXRAY)
         # read labeling
         print_and_log(self._logger, "....Start reading labeling data from - itrk files")
         self.data_lab = p_i_opener.read_from_itrk(sorted(self._itrks), logger=self._logger)
@@ -191,6 +209,7 @@ class Sequencer:
         df_merged = pd.merge(self.data_sys, self.data_lab, right_on='grabIndex', left_on='COM_Cam_Frame_ID', how='left')
         # drop rows where grabIndex is null
         df_merged = df_merged.loc[df_merged['grabIndex'].notnull()]
+        # df_fs = df_merged[['File_Name', 'partialBlockage', 'FS_Partial_Blockage_0', 'itrk_name']]
 
         self.split_list.get_pickle_list(df_merged)
 
@@ -207,7 +226,7 @@ class Sequencer:
             # insert new column at oof_lab_location
             df_merged.insert(oof_lab_location, c.LAB_OOF, -1)
         df_merged.fillna(-1, inplace=True)
-        df_merged = df_merged[c.BWD_COLUMNS]  # .reset_index(drop=True)
+        df_merged = df_merged[c.BWD_COLUMNS]
         # CAL test
         if c.CAL_TEST:
             self.cal_check.check_cal(df_merged)
@@ -216,13 +235,21 @@ class Sequencer:
 
         # check for SPI = 0 (NOT_READY)
         self.not_ready_check.count_not_ready(df_merged)
+        # convert ignore
+        df_merged = self._convert_ignore(df_merged)
         # Get copy for fp
         df_merged_fp = df_merged.copy()
-        if c.DONT_CHECK_ZERO_SPEED:
-            df_merged = df_merged.loc[(df_merged['Velocity'] > 1) | (df_merged['Velocity'] < -1) | (df_merged['Velocity'].isnull())]
-        df_smoothed = self._remove_toggling_tp(df_merged)
+        if c.ZERO_SPEED_THRESHOLD > 0:
+            df_merged = df_merged.loc[(df_merged['Velocity'] > c.ZERO_SPEED_THRESHOLD) | (df_merged['Velocity'] < -c.ZERO_SPEED_THRESHOLD) | (df_merged['Velocity'].isnull())]
+        if c.REMOVE_TOGGLING_TP:
+            df_smoothed = self._remove_toggling_tp(df_merged)
+        else:
+            df_smoothed = df_merged
         df_smoothed = self._map_day_time(df_smoothed)
-        df_smoothed_fp = self._remove_toggling_fp(df_merged_fp)
+        if c.REMOVE_TOGGLING_FP:
+            df_smoothed_fp = self._remove_toggling_fp(df_merged_fp)
+        else:
+            df_smoothed_fp = df_merged_fp
         df_smoothed_fp = self._map_day_time(df_smoothed_fp)
         # Count all labels
         self.lab_sig_counter.count_lab(df_smoothed)  # Count all signals and labels
@@ -273,6 +300,18 @@ class Sequencer:
                                    "To_short_events": 0,
                                    "LabeledFs": [],
                                    "FalsePositive": []}
+        spi_degrade_match = {"Processed": list(info),
+                             "TotalNumberOfFrames": float(number_of_frames),
+                             "DistanceDriven": total_distance,
+                             "To_short_events": 0,
+                             "LabeledFs": [],
+                             "FalsePositive": []}
+        flexray_match = {"Processed": list(info),
+                         "TotalNumberOfFrames": float(number_of_frames),
+                         "DistanceDriven": total_distance,
+                         "To_short_events": 0,
+                         "LabeledFs": [],
+                         "FalsePositive": []}
         # TPR
         if c.SPI_ANY:
             # match any failsafe, any severity
@@ -284,9 +323,15 @@ class Sequencer:
             # match FS_Backup_Matrix
             res_backup_severity = self.calculate_tp(df_grouped, lab_sig_dict=c.LAB_TO_SPI_BACKUP, severities_to_check=c.SEVERITY_BACKUP)
             spi_backup_match.update(res_backup_severity)
+        if c.SPI_DEGRADE:
+            # match FS_Backup_Matrix but any severity that leads to degradation
+            res_degrade_match = self.calculate_tp(df_grouped, lab_sig_dict=c.LAB_TO_SPI_BACKUP, severities_to_check=c.SEVERITY_DEGRADE)
+            spi_degrade_match.update(res_degrade_match)
         if c.SPI_BACKUP_UP_DOWN:
             # match FS_Backup_Matrix +/- one level
+            df_collector.collect = True  # -----------------------------------------------------------------------------
             res_backup_severity_up_down = self.calculate_tp(df_grouped, lab_sig_dict=c.LAB_TO_SPI_BACKUP, severities_to_check=c.SEVERITY_BACKUP_LEVEL_UP_DOWN)
+            df_collector.collect = False
             spi_backup_match_up_down.update(res_backup_severity_up_down)
         if c.SPI_BACKUP_ANY:
             # match FS_Backup_Matrix any level
@@ -303,6 +348,10 @@ class Sequencer:
             # match exact failsafe, up down severity
             res_exact_severity_up_down = self.calculate_tp(df_grouped, lab_sig_dict=c.LAB_TO_SYS, severities_to_check=c.SEVERITY_LEVEL_UP_DOWN)
             spi_exact_match_up_down.update(res_exact_severity_up_down)
+        if c.FLEXRAY:
+            # match to verschmutzung
+            res_flexray = self.calculate_tp(df_grouped, lab_sig_dict=c.LAB_TO_DEGRADE, severities_to_check=c.SEVERITY_VERSCHMUTZUNG)
+            flexray_match.update(res_flexray)
 
         # FPR
         if c.SPI_EXACT:
@@ -311,13 +360,16 @@ class Sequencer:
             self.calculate_fp(df_grouped_fp, spi_exact_match, c.FP_SEVERITY_SPI_EXACT)
             self.tp_fp_counter.collect = False
         if c.SPI_BACKUP:
+            # No FP if failsafe severity according to FS_Backup_Matrix is labelled
+            self.calculate_fp(df_grouped_fp, spi_backup_match, c.FP_SEVERITY_SPI)
+        if c.SPI_DEGRADE:
             # No FP if failsafe not activating Verschmutzung
-            self.calculate_fp(df_grouped_fp, spi_backup_match, c.FP_SEVERITY_BACKUP_VERSCHMUTZUNG)
+            df_collector.collect = True  # -----------------------------------------------------------------------------
+            self.calculate_fp(df_grouped_fp, spi_degrade_match, c.FP_SEVERITY_BACKUP_VERSCHMUTZUNG)
+            df_collector.collect = False
         if c.SPI_EXACT_UP_DOWN:
             # No FP if same failsafe is labeled with severity up down one level
-            df_collector.collect = True  # -----------------------------------------------------------------------------
             self.calculate_fp(df_grouped_fp, spi_exact_match_up_down, c.FP_SEVERITY_SPI_ONE_LEVEL_UP_DOWN)
-            df_collector.collect = False
         if c.SPI_BACKUP_ANY:
             # No FP if backup failsafe is labeled (any severity)
             self.not_ready_check.collect = True
@@ -351,6 +403,8 @@ class Sequencer:
         self.__class__.partials_backup_any = spi_backup_match_any
         self.__class__.partials_exact = spi_exact_match
         self.__class__.partials_exact_up_down = spi_exact_match_up_down
+        self.__class__.partials_degrade = spi_degrade_match
+        self.__class__.partials_flexray = flexray_match
         return True
 
     @staticmethod
@@ -425,6 +479,7 @@ class Sequencer:
             del _sys['Velocity']
             df_grouped[f'{grab_index_first}_{grab_index_last}']['sys'] = _sys
             number_of_frames += grab_index_last - grab_index_first
+            pass
         return df_grouped, number_of_frames, total_distance
 
     def get_bad_label_dicts(self):
@@ -439,8 +494,7 @@ class Sequencer:
         else:
             print('get_bad_label_dicts: wrong project!!!')
 
-    @staticmethod
-    def match_lab_fs(df, signals_to_check, label, labeled_severity, severities_to_check):
+    def Smatch_lab_fs(self, df, signals_to_check, label, labeled_severity, severities_to_check):
         """
         Matched True Positive based on severities_to_check
         :param df:
@@ -457,6 +511,10 @@ class Sequencer:
             if severities_to_check == c.SEVERITY_BACKUP:
                 if signals_to_check[0] in c.SYS_ALL:
                     severity_to_check = c.SEVERITY_BACKUP_SPI[label][labeled_severity]
+            # match severity according to FS_Backup_Matrix.xlsx but any severity causing degradation is ok
+            elif severities_to_check == c.SEVERITY_DEGRADE:
+                if signals_to_check[0] in c.SYS_ALL:
+                    severity_to_check = c.SEVERITY_BACKUP_SPI_DEGRADE[label][labeled_severity]
             # match severity according to FS_Backup_Matrix.xlsx +- one level
             elif severities_to_check == c.SEVERITY_BACKUP_LEVEL_UP_DOWN:
                 if signals_to_check[0] in c.SYS_ALL:
@@ -469,6 +527,10 @@ class Sequencer:
             elif severities_to_check == c.SEVERITY_EXACT:
                 if signals_to_check[0] in c.SYS_ALL:
                     severity_to_check = c.SEVERITY_SPI_EXACT[label][labeled_severity]
+            # match verschmutzung
+            elif severities_to_check == c.SEVERITY_VERSCHMUTZUNG:
+                if signals_to_check[0] in c.DEGRADE:
+                    severity_to_check = c.FLEXRAY_VERSCHMUTZUNG[label][labeled_severity]
             for signal, severity_list in severity_to_check.items():
                 for severity in severity_list:
                     if signal in signals_to_check:
@@ -490,12 +552,22 @@ class Sequencer:
         matching_df_indexes = list(matching_df['index'])
         # get not matching indexes
         not_matching_indexes = list(set(df_indexes).difference(matching_df_indexes))
-
-        not_matching_df = df[df['index'].isin(not_matching_indexes)]
+        # remove noise from not matched
+        gap_list = self.get_gap_list(not_matching_indexes, self.debounce_frames_fn)
+        diff_set = set(not_matching_indexes) - set(gap_list)
+        not_matching_indexes_no_gap = list(diff_set)
+        not_matching_indexes_no_gap.sort()
+        not_matching_df = df[df['index'].isin(not_matching_indexes_no_gap)]
+        # add removed to matched
+        gap_df = df[df['index'].isin(gap_list)]
+        matching_df = pd.concat([matching_df, gap_df], ignore_index=True)
+        matching_df.sort_values(by=['index'],  inplace=True)
+        # remove any match from not matching
+        # not_matching_df['to_match'] = not_matching_df[signals_to_check].max(axis=1)
+        # not_matching_df = not_matching_df[not_matching_df['to_match'] < 2]
         return matching_df, not_matching_df
 
-    @staticmethod
-    def match_sys_fs(df, signal, severity, severities_to_check):
+    def match_sys_fs(self, df, signal, severity, severities_to_check):
         """
         Matched False Positive based on severities_to_check
         :param df:
@@ -508,10 +580,13 @@ class Sequencer:
         matched_index_list = []
         severity_to_check = {}
 
-        if severities_to_check == c.FP_SEVERITY_SPI_ONE_LEVEL_UP_DOWN or severities_to_check == c.FP_SEVERITY_BACKUP_VERSCHMUTZUNG or severities_to_check == c.FP_SEVERITY_SPI_EXACT:
+        if severities_to_check == c.FP_SEVERITY_SPI or severities_to_check == c.FP_SEVERITY_BACKUP_VERSCHMUTZUNG or \
+                severities_to_check == c.FP_SEVERITY_SPI_EXACT or severities_to_check == c.FP_SEVERITY_SPI_ONE_LEVEL_UP_DOWN:
             if signal in severities_to_check.keys() and severity in severities_to_check[signal].keys():
                 if severities_to_check == c.FP_SEVERITY_SPI_ONE_LEVEL_UP_DOWN:
                     severity_to_check = c.FP_SEVERITY_SPI_ONE_LEVEL_UP_DOWN[signal][severity]
+                elif severities_to_check == c.FP_SEVERITY_SPI:
+                    severity_to_check = c.FP_SEVERITY_SPI[signal][severity]
                 elif severities_to_check == c.FP_SEVERITY_BACKUP_VERSCHMUTZUNG:
                     severity_to_check = c.FP_SEVERITY_BACKUP_VERSCHMUTZUNG[signal][severity]
                 elif severities_to_check == c.FP_SEVERITY_SPI_EXACT:
@@ -539,9 +614,45 @@ class Sequencer:
         matching_df_indexes = list(matching_df['index'])
         # get not matching indexes
         not_matching_indexes = list(set(df_indexes).difference(matching_df_indexes))
-
-        not_matching_df = df[df['index'].isin(not_matching_indexes)]
+        # remove noise from not matched
+        gap_list = self.get_gap_list(not_matching_indexes, self.debounce_frames_fp)
+        diff_set = set(not_matching_indexes) - set(gap_list)
+        not_matching_indexes_no_gap = list(diff_set)
+        not_matching_indexes_no_gap.sort()
+        not_matching_df = df[df['index'].isin(not_matching_indexes_no_gap)]
         return not_matching_df, matching_df
+
+    @staticmethod
+    def get_gap_list(index_list, frames_to_debounce):
+        if frames_to_debounce > 0:
+            if index_list:
+                index_list.sort()
+                no_gap = 1
+                gap_index_list = []
+                gap_list = []
+                last_index = index_list[0]
+                for counter, index in enumerate(index_list):
+                    if counter == 0:
+                        gap_index_list.append(index)
+                        continue
+                    diff = index - last_index
+                    last_index = index
+                    if diff == 1:
+                        no_gap += 1
+                        gap_index_list.append(index)
+                    else:
+                        if no_gap < frames_to_debounce:
+                            gap_list += gap_index_list
+                        gap_index_list.clear()
+                        gap_index_list.append(index)
+                        no_gap = 1
+                if no_gap < frames_to_debounce:
+                    gap_list += gap_index_list
+                return gap_list
+            else:
+                return []
+        else:
+            return []
 
     def check_bad_labels_fp(self, fs, df):
         if fs in self.bad_label_dict.keys():
@@ -666,7 +777,7 @@ class Sequencer:
             names = c.SYS_TO_LAB
             for signal, labels in names.items():
                 if signal == 'freeview':
-                    continue
+                    pass
                 to_filter = []
                 to_filter.extend(labels)
                 to_filter.append(signal)
@@ -823,7 +934,7 @@ class Sequencer:
                                                                   "IsRecognition": False,
                                                                   "RecognitionTime": np.nan,
                                                                   "FramesDetected": 0,
-                                                                  "FramesLabeled": len(temp_3) * 16,
+                                                                  "FramesLabeled": len(not_matching) * 16,
                                                                   "EventAveSpeed": ave_speed,
                                                                   "DayNight": not_matching.loc[not_matching.index[0], 'DayNight']})
                                 # ADD FN TO FAILED DATAFRAME ----(df_collector handles empty df)---------------------------------
@@ -832,6 +943,23 @@ class Sequencer:
                             else:
                                 template['To_short_events'] += 1
         return template  # 2 tabs, but in calculate_tp_exact_match there are 3 tabs?
+
+    @staticmethod
+    def _convert_ignore(dataframe):
+        df = dataframe.copy()
+        for label in c.LAB_ALL:
+            df.loc[df[label] == 0, label] = -1
+            df.loc[df[label] == 9, label] = 1
+        # if signal 25 is set, and label is ignore, set label to 25
+        for signal, lab_list in c.SYS_TO_LAB2.items():
+            lab = lab_list[0]
+            sig_df = df[df[signal] == 2]
+            sig_lab_ignore_df = sig_df[sig_df[lab] == 1]
+            sig_lab_ignore_indexes = sig_lab_ignore_df.index.values
+            if sig_lab_ignore_indexes.size > 0:
+                df.loc[sig_lab_ignore_indexes, lab] = 2
+        df.reset_index(drop=True, inplace=True)
+        return df
 
     @staticmethod
     def _remove_toggling_tp(dataframe):
@@ -844,8 +972,8 @@ class Sequencer:
             # df.loc[df[k] == 9, k] = -2  # change ignore to -1
             try:
                 df[label] = df[label].astype(int)
-            except Exception:
-                print()
+            except Exception as e:
+                print(e)
             df_copy = df.copy()
             try:
                 where_severity_change = np.where(np.diff(df[label]) != 0)[0]
@@ -880,8 +1008,6 @@ class Sequencer:
                 df_fs['max_sig'] = df_fs[fs_list].max(axis=1)
                 df_fs['final_label'] = df_fs[label]  # label_fixed
                 for index in df_fs.index.values:
-                    # if index == 362854 and k == 'blurImage':  # 205839
-                    #      print()
                     # All signals are zero ---------------------------------------------------------
                     if df_fs.loc[index, 'max_sig'] == 0:
                         # if signals are zero, and one of the labels original or corrected are zero, set final label = 0, go to next index
@@ -982,7 +1108,7 @@ class Sequencer:
                 df[label] = df_fs['final_label']
                 df.loc[df[label] == 0, label] = -1
                 df.loc[df[label] == 9, label] = 1
-                print()
+                # print()
             except:
                 pass
         df.reset_index(drop=True, inplace=True)
@@ -1061,14 +1187,14 @@ class Sequencer:
                 df[label] = df_fs['final_label']
                 df.loc[df[label] == 0, label] = -1
                 df.loc[df[label] == 9, label] = 1
-                print()
+                # print()
             except:
                 pass
-
         df.reset_index(drop=True, inplace=True)
         return df
 
     def _map_day_time(self, df):
+        df.reset_index(drop=True, inplace=True)
         if len(df) > 0:
             df['DayNight'] = 'Day'
             file_names = df['File_Name'].tolist()
@@ -1101,6 +1227,10 @@ class Sequencer:
             return cls.partials_exact
         elif n == 'exact_up_down':
             return cls.partials_exact_up_down
+        elif n == 'degrade':
+            return cls.partials_degrade
+        elif n == 'flexray':
+            return cls.partials_flexray
 
     @staticmethod
     def save_to_json(path, name, what):

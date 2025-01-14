@@ -96,6 +96,7 @@ class DfSplitter:
             self.master_df_list.append(self.master_df)
 
     def save_dfs(self):
+        new_path = "_"
         if self.master_df_list:
             new_folder = f'{self.function}_{self.sop}_{self.a_step}_BIND_DFS'
             new_path = os.path.join(c.PATH_FAILED_KPI_DFS, new_folder)

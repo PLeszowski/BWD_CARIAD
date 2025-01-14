@@ -100,7 +100,7 @@ class NotReadyCheck:
         key = list(self.file_dict.keys())[0]
         search_line = self.file_dict[key]
         # search for HILREPP-7digits, force the engine to try matching at the furthest position
-        search = re.search(r'(?s:.*).+(HILREPP-\d{7}).+', search_line)  # ex. HILREPP-2013288
+        search = re.search(r'(?s:.*).+\W(\d{4}_\d{4})\W.+', search_line)  # ex. HILREPP-2013288
         if search:
             return search.group(1)
         else:
@@ -112,7 +112,7 @@ class NotReadyCheck:
                 os.makedirs(self.new_path, exist_ok=True)
             hilrep = self.get_hilrep()
             if hilrep:
-                self.unique_name = hilrep
+                self.unique_name = hilrep + "_" + self.dt_str
             file_name = f'{self.function}_{self.sop}_{self.a_step}_{self.unique_name}.pickle'
             self.save_json(self.event_counter_dict, self.new_path, file_name)
         else:

@@ -5,7 +5,11 @@ import os
 import lzma
 from libs.loggingFuncs import print_and_log
 from config.constant import CORE_PROTOCOL_MAPPING
+from config.constant import SYS_VERSCHMUTZUNG_MOD
+from config.constant import SYS_VERSCHMUTZUNG_FGE
+from flexray_postprocessor.bhe_postprocessor import BhePostprocessor
 import numpy as np
+fr_postprocessor = BhePostprocessor()
 
 
 def read_pickle(path):
@@ -26,7 +30,7 @@ def pickle_compress_saver(dictionary_input, path):
         pickle.dump(dictionary_input, pf, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-def read_from_raw(file_list, logger, eth=False):
+def read_from_raw(file_list, logger, fr=False):
     """
     :param file_list: list of pickles to open and merge to DF
     :return: DataFrame with proper signals
@@ -40,12 +44,15 @@ def read_from_raw(file_list, logger, eth=False):
         #     print()
         # read pickle
         data = read_pickle(file)
+        # add postprossed flexray data
+        data = fr_postprocessor.postprocess(data)
         if data == 'EOFError':
             print_and_log(message='!!!!Error "EOFError (cant open pickle)"', logger=logger)
             continue
         elif data == 'FileNotFoundError':
             print_and_log(message='!!!!Error "FileNotFoundError (cant open pickle)"', logger=logger)
             continue
+
         # FailSafe protocol
         try:
             temp = data['SPI']['EYEQ_TO_HOST']['Core_Failsafe_protocol']
@@ -60,8 +67,6 @@ def read_from_raw(file_list, logger, eth=False):
                 del temp_velocty[item]
             temp_interpolated_vel = np.interp(temp['timestamp'], temp_velocty['timestamp'],
                                               temp_velocty['CO_Vehicle_Speed'], left=np.nan, right=np.nan)
-            if eth:
-                eth_temp = get_eth(data, temp['timestamp'])
 
         except KeyError as e:
             print_and_log(message=f'!!!!Error {e} not found!', logger=logger)
@@ -75,6 +80,7 @@ def read_from_raw(file_list, logger, eth=False):
             print_and_log(message=f'!!!!Error {e} not found!', logger=logger)
             continue
 
+        # Calibration protocol
         try:
             cal = {'timestamp': data['SPI']['EYEQ_TO_HOST']['Core_Calibration_Output_protocol']['timestamp'],
                    'CO_main_safetyState': data['SPI']['EYEQ_TO_HOST']['Core_Calibration_Output_protocol']['CO_main_safetyState'],
@@ -86,12 +92,30 @@ def read_from_raw(file_list, logger, eth=False):
             print_and_log(message=f'!!!!Error {e} not found!', logger=logger)
             continue
 
+        # Add post processed Flexray data
+        if fr:
+            try:
+                if 'FRAME_78_0_8_B' in data['FLEXRAY'] and 'BV3_SensorHeader' in data['FLEXRAY']['FRAME_78_0_8_B']:
+                    flexray = {'timestamp': data['FLEXRAY']['FRAME_78_0_8_B']['BV3_SensorHeader']['timestamp'],
+                               SYS_VERSCHMUTZUNG_MOD: data['FLEXRAY']['FRAME_78_0_8_B']['BV3_SensorHeader'][SYS_VERSCHMUTZUNG_MOD],
+                               SYS_VERSCHMUTZUNG_FGE: data['FLEXRAY']['FRAME_78_0_8_B']['BV3_SensorHeader'][SYS_VERSCHMUTZUNG_FGE]}
+                else:
+                    flexray = {'timestamp': [],
+                               SYS_VERSCHMUTZUNG_MOD: [],
+                               SYS_VERSCHMUTZUNG_FGE: []}
+            except KeyError as e:
+                print_and_log(message=f'!!!!Error {e} not found!', logger=logger)
+                continue
+        else:
+            data_len = len(data['SPI']['EYEQ_TO_HOST']['Core_Common_protocol']['timestamp'])
+            flexray = {'timestamp': data['SPI']['EYEQ_TO_HOST']['Core_Common_protocol']['timestamp'],
+                       SYS_VERSCHMUTZUNG_MOD: [-1] * data_len,
+                       SYS_VERSCHMUTZUNG_FGE: [-1] * data_len}
+
         # temporary df
         df_fs_temp = pd.DataFrame.from_dict(temp)
         # adding filename to each row
-        if eth:
-            if eth_temp is not None:
-                df_fs_temp = pd.merge(df_fs_temp, eth_temp, on='timestamp')
+
         df_fs_temp['File_Name'] = os.path.basename(file)
         df_fs_temp['Velocity'] = temp_interpolated_vel
         # merging previous and temporary DataFrame (fs signals)
@@ -102,6 +126,11 @@ def read_from_raw(file_list, logger, eth=False):
         df_cal_temp = pd.DataFrame.from_dict(cal)
         # merging previous and temporary DataFrame (df_cal_temp)
         df_sync_temp = pd.merge_asof(df_sync_temp.sort_values('timestamp'), df_cal_temp, on='timestamp', direction='nearest')
+        # if fr:
+        # getting flexray data
+        df_fr_temp = pd.DataFrame.from_dict(flexray)
+        # merging previous and temporary DataFrame (df_cal_temp)
+        df_sync_temp = pd.merge_asof(df_sync_temp.sort_values('timestamp'), df_fr_temp, on='timestamp', direction='nearest')
         df_sync_temp.drop('timestamp', axis=1,  inplace=True)
 
         # merging previous and temporary DataFrame (sync cam ID)
@@ -119,45 +148,6 @@ def read_from_raw(file_list, logger, eth=False):
     df_final = pd.concat([df_fs, df_sync], axis=1)
     print_and_log(logger, f'......Stop reading system data - Return DataFrame')
     return df_final
-
-
-def get_eth(data, timestamp):
-    try:
-        cal_dict = {'timestamp': {}, 'eth_pitch': {}}
-        t_loc = data['SP2021']['BlockageAndWeatherFrontCameraMain']['blockageAndWeatherFrontcameraMain']['timestamp']
-        blockage = data['SP2021']['BlockageAndWeatherFrontCameraMain']['blockageAndWeatherFrontcameraMain']['updateBlockage']
-        weather = data['SP2021']['BlockageAndWeatherFrontCameraMain']['blockageAndWeatherFrontcameraMain']['updateWeather']
-        cal_dict['eth_pitch'] = data['SP2021']['CalibrationInformationADFrontCameraMain']['calibrationFront']['extrinsic']['pitch']
-        cal_dict['timestamp'] = data['SP2021']['CalibrationInformationADFrontCameraMain']['calibrationFront']['timestamp']
-        cal_df = pd.DataFrame.from_dict(cal_dict)
-        signals = {'timestamp': timestamp}
-        for item in [blockage, weather]:
-            for k, v in item.items():
-                signal_value = []
-                final_values = []
-                if "invalid_flags" in v.keys():
-                    logical_map = np.logical_and(v['severity'], np.logical_not(v['invalid_flags']))
-                elif 'invalidFlag' in v.keys():
-                    logical_map = np.logical_and(v['severity'], np.logical_not(v['invalidFlag']))
-                for num, i in enumerate(logical_map):
-                    if i:
-                        signal_value.append(v['severity'][num] + 1)
-                    else:
-                        signal_value.append(0)
-                indexes = list(np.searchsorted(t_loc, timestamp))
-                for i in indexes:
-                    if i == 0:
-                        final_values.append(signal_value[i])
-                    else:
-                        final_values.append(signal_value[i - 1])
-                signals[f'eth_{k}'] = final_values
-        bwd_df = pd.DataFrame.from_dict(signals)
-        # merge BWD and CAL
-        df_bwd_cal = pd.merge_asof(bwd_df.sort_values('timestamp'), cal_df, on='timestamp', direction='nearest')
-        return df_bwd_cal
-    except:
-        return None
-
 
 def read_from_dict(file_list, logger):
     data = None

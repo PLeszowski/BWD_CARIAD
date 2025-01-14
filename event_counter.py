@@ -10,6 +10,7 @@ import os
 import json
 import re
 import config.constant as c
+import serializer
 
 
 class EventCounter:

@@ -27,8 +27,8 @@ class DfBinder:
         self.event_stats_df.fillna(0, inplace=True)
         self.frame_stats_df = pd.DataFrame(index=c.FAILED_KPI_TYPES, columns=c.FAILED_KPI_EVENTS)
         self.frame_stats_df.fillna(0, inplace=True)
-        # self.hilrepp_dfs_path = os.path.join(self.path, f'{self.function}_{self.sop}_{self.a_step}_HILREPP_DFS')
-        self.hilrepp_dfs_path = r'c:\Users\wjjymc\PycharmProjects\BWD\FAILED_KPI_DFS\BWD_SOP8_A360_NEW_LOGIC_DAY_NIGHT_INVALID_LABEL_FIX_08\CP60_DATASET\BWD_SOP8_A-360_v1_BIND_DFS'
+        self.hilrepp_dfs_path = os.path.join(self.path, f'{self.function}_{self.sop}_{self.a_step}_HILREPP_DFS')
+        # self.hilrepp_dfs_path = r'c:\Users\wjjymc\PycharmProjects\BWD\FAILED_KPI_DFS\BWD_SOP8_A360_NEW_LOGIC_DAY_NIGHT_INVALID_LABEL_FIX_08\CP60_DATASET\BWD_SOP8_A-360_v1_BIND_DFS'
 
     def get_df_files(self):
 
@@ -158,28 +158,30 @@ class DfBinder:
                 df = self.load_pkl(self.hilrepp_dfs_path, file)
                 for event in c.FAILED_KPI_EVENTS:
                     # Get dataframe where event is more than zero
-                    event_df = df[df[event] > 0]
+                    event_df = df[df[event] > 1]
                     if len(event_df) > 0:
                         # Count frames by event types -----------------
                         for j, row in event_df.iterrows():
                             # Get list of IDs in row
                             id_list = row['Id']
-                            # Get index of event in IDs
-                            event_idx = id_list.index(event)
-                            # Get Type at index
-                            event_type = row['Type'][event_idx]
-                            self.frame_stats_df.loc[event_type, event] += 1
+                            for idx, fs_id in enumerate(id_list):
+                                # Get Type at index
+                                event_type = row['Type'][idx]
+                                self.frame_stats_df.loc[event_type, fs_id] += 1
                         # Count events by event types -----------------
                         # Get dataframe where counter changes
                         event_count_df = self.copy_rows_where_col_changed_to_new_val_df(event_df, event)
-                        # Get event position
-                        for j, row in event_count_df.iterrows():
-                            id_list = row['Id']
-                            event_idx = id_list.index(event)
-                            event_type = row['Type'][event_idx]
-                            self.event_stats_df.loc[event_type, event] += 1
+                        if len(event_count_df) > 0:
+                            for j, row in event_df.iterrows():
+                                # Get list of IDs in row
+                                id_list = row['Id']
+                                for idx, fs_id in enumerate(id_list):
+                                    # Get Type at index
+                                    event_type = row['Type'][idx]
+                                    self.event_stats_df.loc[event_type, event] += 1
 
-                df_to_append = df[c.FAILED_KPI_DF_COLUMNS].reset_index(drop=True)
+                # df_to_append = df[c.FAILED_KPI_DF_COLUMNS].reset_index(drop=True)
+                df_to_append = df.reset_index(drop=True)
                 df_list.append(df_to_append)
             try:
                 # Concatenate master_df_list list to master_df

@@ -9,8 +9,8 @@ class EventFinder:
 
     def __init__(self):
 
-        self.path_to_partial_results = r'f:\BWD\CP60\TR\SOP1_A440\spi_any'
-        self.path_to_output_excel = r'f:\BWD\CP60\TR\SOP1_A440\spi_any'
+        self.path_to_partial_results = r'f:\CARIAD\BHE\REPRO\X071\spi_exact'
+        self.path_to_output_excel = r'f:\CARIAD\BHE\REPRO\X071\spi_exact\event_finder'
         self.ext = '.json'
         self.file_list = []
         self.severity_tp_list = [0, 25, 50, 75, 99]

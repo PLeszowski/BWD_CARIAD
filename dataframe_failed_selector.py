@@ -16,8 +16,8 @@ class DfFailedSelector:
 
     def __init__(self):
         self.filelist = []
-        self.input_folder = r'f:\CARIAD\BHE\REPRO\X060\BWD_SOP1_X060_BIND_DFS'
-        self.output_folder = r'f:\CARIAD\BHE\REPRO\X060\BWD_SOP1_X060_BIND_DFS\partials'
+        self.input_folder = r'f:\CARIAD\BHE\REPRO\X110\failed_dfs\NEW_ALL_WITH_SEVERITIES\ALL'
+        self.output_folder = r'f:\CARIAD\BHE\REPRO\X110\failed_dfs\NEW_ALL_WITH_SEVERITIES\ALL_ONE_PER_SPLIT'
 
     @staticmethod
     def load_pkl(path, file=None):
@@ -211,6 +211,30 @@ class DfFailedSelector:
             else:
                 print(f'Empty pickle {df_type}')
 
+    def select_data_split_for_each(self):
+        # one frame per split for each pickle in folder
+        for file in self.filelist:
+            file_path = os.path.join(self.input_folder, file)
+            df = self.load_pkl(file_path)
+            # New name
+            file_new = file.split('.')[0]
+            # Add column with pickle name
+            # add Split Name column
+            df['Split'] = np.nan
+            df['Split'] = df['Path'].str.extract(r'.+(ADCAM_.+_\d{8}_\d{6}_pic_\d{4}).+', expand=False)
+            # sort by split name
+            df.sort_values('Split', inplace=True)
+            df_selected = self.copy_rows_where_col_changed_to_new_val_df(df, 'Split')
+            if len(df_selected) > 0:
+                pickle_name = f'{file_new}_one_per_split.pickle'
+                output_pickle = os.path.join(self.output_folder, pickle_name)
+                if not os.path.isdir(self.output_folder):
+                    os.makedirs(self.output_folder, exist_ok=True)
+                self.save_pkl(df_selected, output_pickle)
+                print(f'Saved pickle {pickle_name}')
+            else:
+                print(f'Empty pickle {file}')
+
     def select_one_per_measurement(self):
         for file in self.filelist:
             file_path = os.path.join(self.input_folder, file)
@@ -337,16 +361,66 @@ class DfFailedSelector:
         new_name = f'{new_names[0]}_selected.pickle'
         self.save_pkl(df_selected, pickle_path, new_name)
 
+    #  makes dataframes per fs per severity for FN events
+    def select_fs_severity_from_one_fn_pickle(self, pickle_path, plk):
+        df_dict = {}
+        df = self.load_pkl(pickle_path, plk)
+        for fs, severity_list in c.VALID_SEVERITY_LAB.items():
+            if fs in df.columns:
+                for severity in severity_list:
+                    df_sig = df[df[fs] == severity]
+                    fs_severity = f'{fs}_{severity}'
+                    df_dict[fs_severity] = df_sig
+        for fs_severity, fs_df in df_dict.items():
+            fs_df = fs_df[c.FAILED_KPI_DF_COLUMNS].reset_index(drop=True)
+            new_name = f'FN_{fs_severity}.pickle'
+            self.save_pkl(fs_df, pickle_path, new_name)
+
+    #  makes dataframes per fs per severity for FP events
+    def select_fs_severity_from_one_fp_pickle(self, pickle_path, plk):
+        df_dict = {}
+        df = self.load_pkl(pickle_path, plk)
+        for fs, severity_list in c.VALID_SEVERITY_SYS.items():
+            if fs in df.columns:
+                for severity in severity_list:
+                    df_sig = df[df[fs] == severity]
+                    fs_severity = f'{fs}_{severity}'
+                    df_dict[fs_severity] = df_sig
+        for fs_severity, fs_df in df_dict.items():
+            fs_df = fs_df[c.FAILED_KPI_DF_COLUMNS].reset_index(drop=True)
+            new_name = f'FP_{fs_severity}.pickle'
+            self.save_pkl(fs_df, pickle_path, new_name)
+
+    def change_project(self):
+
+        for root, d_names, f_names in os.walk(self.input_folder):
+            print(f'searching: {root}')
+            for f_name in f_names:
+                if f_name.endswith('pickle'):
+                    file_path = os.path.join(root, f_name)
+                    df = self.load_pkl(file_path)
+                    df['Project'] = 'mid'
+                    if 'Split' in df.columns:
+                        df.drop(columns='Split', inplace=True)
+                    if 'Measurement' in df.columns:
+                        df.drop(columns='Measurement', inplace=True)
+                    if 'split_num' in df.columns:
+                        df.drop(columns='split_num', inplace=True)
+                    self.save_pkl(df, root, f_name)
 
 def main():
     frame_selector = DfFailedSelector()
+    frame_selector.change_project()
     frame_selector.get_pickles()
-    frame_selector.select_fs_from_all_fn_pickle()
-    frame_selector.select_data_split()
-    # frame_selector.select_data_fp()
+    # frame_selector.select_fs_from_all_fn_pickle()
+    # frame_selector.select_fs_from_all_fp_pickle()
     # frame_selector.select_data_split()
+    # frame_selector.select_data_split_for_each()
+    # frame_selector.select_data_fp()
     # frame_selector.select_one_per_measurement()
     # frame_selector.select_if_gap_in_split_num()
+    frame_selector.select_fs_severity_from_one_fn_pickle(r'f:\CARIAD\BHE\REPRO\X110\failed_dfs\NEW_ALL_WITH_SEVERITIES\ALL_ONE_PER_SPLIT', 'BWD_SOP1_X110_fn_one_per_split.pickle')
+    frame_selector.select_fs_severity_from_one_fp_pickle(r'f:\CARIAD\BHE\REPRO\X110\failed_dfs\NEW_ALL_WITH_SEVERITIES\ALL_ONE_PER_SPLIT', 'BWD_SOP1_X110_fp_one_per_split.pickle')
 
     #path = r'c:\Users\wjjymc\PycharmProjects\BWD\FAILED_KPI_DFS\SOP1_A480_CP60_01\BWD_SOP1_A480_BIND_DFS\partials'
     #pkl = r'BWD_SOP1_A480_fn_one_per_split.pickle'

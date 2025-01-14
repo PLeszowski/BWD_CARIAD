@@ -1,0 +1,152 @@
+2024-06-13 16:01:07:INFO|MainLogic._find_pickles
+2024-06-13 16:01:07:INFO|MainLogic.run
+2024-06-13 16:01:07:INFO|MainLogic._main
+2024-06-13 16:01:07:INFO|MainLogic._find_itrks
+2024-06-13 16:01:08:INFO|..Sequencer.init_counter_dicts
+2024-06-13 16:01:08:INFO|..Sequencer.get_bad_label_dicts
+2024-06-13 16:01:08:INFO|..Sequencer.run
+2024-06-13 16:01:08:INFO|....Start reading system data from - raw
+2024-06-13 16:01:08:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0089.pickle.xz
+2024-06-13 16:01:08:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0090.pickle.xz
+2024-06-13 16:01:08:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0091.pickle.xz
+2024-06-13 16:01:08:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0092.pickle.xz
+2024-06-13 16:01:08:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0093.pickle.xz
+2024-06-13 16:01:08:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0094.pickle.xz
+2024-06-13 16:01:09:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0095.pickle.xz
+2024-06-13 16:01:09:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0096.pickle.xz
+2024-06-13 16:01:09:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0097.pickle.xz
+2024-06-13 16:01:09:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0098.pickle.xz
+2024-06-13 16:01:09:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0099.pickle.xz
+2024-06-13 16:01:09:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0100.pickle.xz
+2024-06-13 16:01:10:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0101.pickle.xz
+2024-06-13 16:01:10:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0102.pickle.xz
+2024-06-13 16:01:10:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0103.pickle.xz
+2024-06-13 16:01:10:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0104.pickle.xz
+2024-06-13 16:01:10:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0105.pickle.xz
+2024-06-13 16:01:10:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0106.pickle.xz
+2024-06-13 16:01:11:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0107.pickle.xz
+2024-06-13 16:01:11:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0108.pickle.xz
+2024-06-13 16:01:11:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0109.pickle.xz
+2024-06-13 16:01:11:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0110.pickle.xz
+2024-06-13 16:01:11:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0111.pickle.xz
+2024-06-13 16:01:12:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0112.pickle.xz
+2024-06-13 16:01:12:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0113.pickle.xz
+2024-06-13 16:01:12:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0114.pickle.xz
+2024-06-13 16:01:12:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0115.pickle.xz
+2024-06-13 16:01:12:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0116.pickle.xz
+2024-06-13 16:01:12:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0117.pickle.xz
+2024-06-13 16:01:13:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0118.pickle.xz
+2024-06-13 16:01:13:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0119.pickle.xz
+2024-06-13 16:01:13:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0120.pickle.xz
+2024-06-13 16:01:13:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0121.pickle.xz
+2024-06-13 16:01:13:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0122.pickle.xz
+2024-06-13 16:01:13:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0123.pickle.xz
+2024-06-13 16:01:14:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0124.pickle.xz
+2024-06-13 16:01:14:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0125.pickle.xz
+2024-06-13 16:01:14:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0126.pickle.xz
+2024-06-13 16:01:14:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0127.pickle.xz
+2024-06-13 16:01:14:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0128.pickle.xz
+2024-06-13 16:01:14:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0129.pickle.xz
+2024-06-13 16:01:15:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0130.pickle.xz
+2024-06-13 16:01:15:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0131.pickle.xz
+2024-06-13 16:01:15:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0132.pickle.xz
+2024-06-13 16:01:15:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0133.pickle.xz
+2024-06-13 16:01:15:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0134.pickle.xz
+2024-06-13 16:01:15:INFO|......ADCAM_WBATR950X0NC87723_20210130_002913_pic_0135.pickle.xz
+2024-06-13 16:01:16:INFO|......Merging Com_Cam_Frame_ID to Core_failsafe_protocol by Sync_Frame_ID
+2024-06-13 16:01:16:INFO|......Stop reading system data - Return DataFrame
+2024-06-13 16:01:16:INFO|....Start reading labeling data from - itrk files
+2024-06-13 16:01:16:INFO|......ADM_7723_210130_002913_0048_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:16:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:16:INFO|......ADM_7723_210130_002913_0054_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:16:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:16:INFO|......ADM_7723_210130_002913_0060_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:16:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:16:INFO|......ADM_7723_210130_002913_0066_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:16:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:16:INFO|......ADM_7723_210130_002913_0072_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:16:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:16:INFO|......ADM_7723_210130_002913_0078_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:16:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:16:INFO|......ADM_7723_210130_002913_0084_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:16:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:16:INFO|......ADM_7723_210130_002913_0090_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:17:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:17:INFO|......ADM_7723_210130_002913_0096_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:17:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:17:INFO|......ADM_7723_210130_002913_0102_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:17:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:17:INFO|......ADM_7723_210130_002913_0108_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:17:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:17:INFO|......ADM_7723_210130_002913_0114_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:17:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:17:INFO|......ADM_7723_210130_002913_0120_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:17:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:17:INFO|......ADM_7723_210130_002913_0126_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:17:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:17:INFO|......ADM_7723_210130_002913_0138_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:17:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:17:INFO|......ADM_7723_210130_002913_0144_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:18:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:18:INFO|......ADM_7723_210130_002913_0150_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:18:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:18:INFO|......ADM_7723_210130_002913_0156_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:18:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:18:INFO|......ADM_7723_210130_002913_0168_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:18:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:18:INFO|......ADM_7723_210130_002913_0174_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:18:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:18:INFO|......ADM_7723_210130_002913_0180_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:18:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:18:INFO|......ADM_7723_210130_002913_0186_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:18:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:18:INFO|......ADM_7723_210130_002913_0192_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:18:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:18:INFO|......ADM_7723_210130_002913_0198_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:19:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:19:INFO|......ADM_7723_210130_002913_0204_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:19:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:19:INFO|......ADM_7723_210130_002913_0210_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:19:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:19:INFO|......ADM_7723_210130_002913_0216_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:19:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:19:INFO|......ADM_7723_210130_002913_0222_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:19:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:19:INFO|......ADM_7723_210130_002913_0264_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:19:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:19:INFO|......ADM_7723_210130_002913_0270_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:19:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:19:INFO|......ADM_7723_210130_002913_0276_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:19:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:19:INFO|......ADM_7723_210130_002913_0282_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:20:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:20:INFO|......ADM_7723_210130_002913_0288_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:20:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:20:INFO|......ADM_7723_210130_002913_0294_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:20:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:20:INFO|......ADM_7723_210130_002913_0312_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:20:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:20:INFO|......ADM_7723_210130_002913_0318_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:20:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:20:INFO|......ADM_7723_210130_002913_0324_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:20:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:20:INFO|......ADM_7723_210130_002913_0336_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:20:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:20:INFO|......ADM_7723_210130_002913_0342_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:20:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:20:INFO|......ADM_7723_210130_002913_0348_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:21:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:21:INFO|......ADM_7723_210130_002913_0360_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:21:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:21:INFO|......ADM_7723_210130_002913_0366_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:21:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:21:INFO|......ADM_7723_210130_002913_0372_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:21:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:21:INFO|......ADM_7723_210130_002913_0384_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:21:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:21:INFO|......ADM_7723_210130_002913_0390_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:21:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:21:INFO|......ADM_7723_210130_002913_0396_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:21:INFO|......Stop reading labeling data - Return DataFrame
+2024-06-13 16:01:21:INFO|......ADM_7723_210130_002913_0402_s001_p_EQ4H_1_s60_0001_perfects_fs.itrk
+2024-06-13 16:01:21:INFO|......Stop reading labeling data - Return DataFrame

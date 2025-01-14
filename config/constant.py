@@ -1,60 +1,63 @@
 import copy
 import json
+import config.paths as paths
+import config.setup as setup
+import os
 
-DAYTIME_DICT_FILE = r'C:\Users\wjjymc\PycharmProjects\BWD_CARIAD\config\BWD_daytime.json'
+DAYTIME_DICT_FILE = paths.DAYTIME_DICT_FILE
 with open(DAYTIME_DICT_FILE, 'r') as f:
     DAYTIME_DICT = json.load(f)
 
+PATH_ITRK = paths.PATH_ITRK
+PATH_RESULT = paths.PATH_RESULT
+PATH_FAILED_KPI_DFS = paths.PATH_FAILED_KPI_DFS
+CP60_SPEC_PATH = paths.CP60_SPEC_PATH
+CP_60_PICKLES_FILE_LIST = paths.CP_60_PICKLES_FILE_LIST
+BAD_LABEL_DICT_FOLDER = paths.BAD_LABEL_DICT_FOLDER
+BAD_LABELS_PATH_TO_PARTIAL_RESULTS_CP60 = paths.BAD_LABELS_PATH_TO_PARTIAL_RESULTS_CP60
+BAD_LABELS_PATH_TO_PARTIAL_RESULTS_MID = paths.BAD_LABELS_PATH_TO_PARTIAL_RESULTS_MID
+KPI_GENERATOR_OUTPUT_FOLDER = os.path.join(paths.KPI_GENERATOR_OUTPUTS_FOLDER, setup.J_NAME)
 
-PATH_ITRK = r"c:/Users/wjjymc/PycharmProjects/BWD/BWD_MID_itrks_20220706"
-PATH_RESULT = r'c:/Users/wjjymc/PycharmProjects/BWD_CARIAD/logs'
-PATH_FAILED_KPI_DFS = r'c:/Users/wjjymc/PycharmProjects/BWD_CARIAD/FAILED_KPI_DFS'
+A_STEP = setup.A_STEP
+SOP = setup.SOP
+CP60_SPEC = setup.CP60_SPEC
+PROJECT = setup.PROJECT
+REMOVE_TOGGLING_TP = setup.REMOVE_TOGGLING_TP
+REMOVE_TOGGLING_FP = setup.REMOVE_TOGGLING_FP
 
-CP60_SPEC_PATH = "c:/Users/wjjymc/PycharmProjects/BWD/cp60_staged_lists/pb_list.json"
-CP_60_PICKLES_FILE_LIST = "c:/Users/wjjymc/PycharmProjects/BWD/cp60_staged_lists/f_pb2_list.json"
-
-BAD_LABEL_DICT_FOLDER = r'c:/Users/wjjymc/PycharmProjects/BWD_CARIAD/BWD_BAD_LABELS'
-BAD_LABELS_PATH_TO_PARTIAL_RESULTS_CP60 = r'c:\Users\wjjymc\PycharmProjects\BWD_CARIAD\output\spi_backup_any'
-BAD_LABELS_PATH_TO_PARTIAL_RESULTS_MID = r'c:\Users\wjjymc\PycharmProjects\BWD_CARIAD\output\spi_backup_any'
-
-A_STEP = 'X060'
-SOP = 'SOP1'
-CP60_SPEC = False  # True for 0km/h events
-PROJECT = 'mid'  # cp60 or mid
-
-if PROJECT == 'cp60':
-    DONT_CHECK_ZERO_SPEED = False
-else:
-    DONT_CHECK_ZERO_SPEED = True
-
-CAL_TEST = False
-CAL_TEST_ONLY = False
+CAL_TEST = setup.CAL_TEST
+CAL_TEST_ONLY = setup.CAL_TEST_ONLY
 NO_VALUE = 0
 CALIBRATED = 64273
 UNVALIDATED = 43923
 SUSPECTED = 48290
 OOR = 2422
 
-ONLY_SYS_SEVERITY = True
+ONLY_SYS_SEVERITY = setup.ONLY_SYS_SEVERITY
 SEVERITY_ANY = 0  # match any failsafe, any severity
 SEVERITY_BACKUP = 1  # match FS_Backup_Matrix
 SEVERITY_BACKUP_LEVEL_UP_DOWN = 2  # match FS_Backup_Matrix +/- one level
 SEVERITY_EXACT = 3  # match exact failsafe, exact severity
 SEVERITY_LEVEL_UP_DOWN = 5  # match FS_Backup_Matrix +/- one level without backup signal
-SEVERITY_FP_VERSCHMUTZUNG = 6
+SEVERITY_DEGRADE = 6  # match FS_Backup_Matrix but any severity causing degradation is ok
+SEVERITY_VERSCHMUTZUNG = 7
 
 FREQUENCY = 36
-SPI_EXACT = True
-SPI_EXACT_UP_DOWN = True
-SPI_BACKUP = True
-SPI_BACKUP_UP_DOWN = True
-SPI_ANY = True
-SPI_BACKUP_ANY = True
+DEBOUNCE_TIME_FN_S = setup.DEBOUNCE_TIME_FN_S  # debounce time (s) for FN noise (16/FREQUENCY*FRAMES). 0 = don't debounce
+DEBOUNCE_TIME_FP_S = setup.DEBOUNCE_TIME_FP_S  # debounce time (s) for FP noise (16/FREQUENCY*FRAMES). 0 = don't debounce
+ZERO_SPEED_THRESHOLD = setup.ZERO_SPEED_THRESHOLD  # TPR don't use data below this speed (km/h). 0 = use all
 
-KPI_GENERATOR_OUTPUT_FOLDER = r"c:\Users\wjjymc\PycharmProjects\BWD_CARIAD\output"
-KPI_GENERATE_DAY = True
-KPI_GENERATE_NIGHT = True
-KPI_RECOG_TIME = False
+SPI_EXACT = setup.SPI_EXACT
+SPI_EXACT_UP_DOWN = setup.SPI_EXACT_UP_DOWN
+SPI_BACKUP = setup.SPI_BACKUP
+SPI_BACKUP_UP_DOWN = setup.SPI_BACKUP_UP_DOWN
+SPI_ANY = setup.SPI_ANY
+SPI_BACKUP_ANY = setup.SPI_BACKUP_ANY
+SPI_DEGRADE = setup.SPI_DEGRADE
+FLEXRAY = setup.FLEXRAY
+KPI_GENERATE_DAY = setup.KPI_GENERATE_DAY
+KPI_GENERATE_NIGHT = setup.KPI_GENERATE_NIGHT
+KPI_RECOG_TIME = setup.KPI_RECOG_TIME
 
 SYS_BLUR = 'FS_Blur_Image_0'  # CoreProtocol_v4.19.5
 SYS_FROZEN_WINDSHIELD = 'FS_Frozen_Windshield_Lens_0'  # CoreProtocol_v4.19.5
@@ -73,6 +76,8 @@ SYS_FREEVIEW = 'FS_Free_Sight_0'  # CoreProtocol_v4.19.5
 SYS_IMPACTED_TECHNOLOGIES = 'FS_Impacted_Technologies'
 # FS_Calibration_Misalignment ???
 # FS_Camera_to_Camera_Calib_XX ???
+SYS_VERSCHMUTZUNG_MOD = 'BV3_Verschmutzung_MOD'
+SYS_VERSCHMUTZUNG_FGE = 'BV3_Verschmutzung_FGE'
 
 LAB_BLOCKAGE = 'blockage'
 LAB_BLUR_IMAGE = 'blurImage'
@@ -105,6 +110,17 @@ VALID_SEVERITY_LAB = {LAB_BLUR_IMAGE: [4, 5],
                       LAB_SPLASHES: [2, 4, 5],
                       LAB_OOF: [4, 5],
                       LAB_SUNRAY: [2, 4, 5]}
+
+VALID_SEVERITY_SYS = {SYS_BLUR: [4, 5],
+                      SYS_FOG: [2, 5],
+                      SYS_FROZEN_WINDSHIELD: [2, 4, 5],
+                      SYS_FULL_BLOCKAGE: [5],
+                      SYS_FADING_BY_SUN: [2, 4, 5],
+                      SYS_PARTIAL_BLOCKAGE: [2, 4, 5],
+                      SYS_RAIN: [2, 4, 5],
+                      SYS_ROAD_SPRAY: [2, 4, 5],
+                      SYS_OUT_OF_FOCUS: [4, 5],
+                      SYS_SUN_RAY: [2, 4, 5]}
 
 RECOGNITION_TIME = {
     SYS_BLUR: 5,
@@ -165,7 +181,7 @@ SYS_AVAILABLE_SEVERITY = {
 SYS_ALL = [SYS_BLUR, SYS_FROZEN_WINDSHIELD, SYS_FULL_BLOCKAGE, SYS_PARTIAL_BLOCKAGE, SYS_FADING_BY_SUN, SYS_SUN_RAY,
            SYS_RAIN, SYS_ROAD_SPRAY, SYS_FOG, SYS_OUT_OF_FOCUS]
 CAL_ALL = [CAL_STATE, CAL_PITCH, CAL_YAW, CAL_ROLL, CAL_HEIGHT]
-
+DEGRADE = [SYS_VERSCHMUTZUNG_MOD, SYS_VERSCHMUTZUNG_FGE]
 LAB_ALL = [LAB_BLUR_IMAGE, LAB_FOG, LAB_FROZEN_WINDSHIELD, LAB_FULL_BLOCKAGE, LAB_LOWSUN, LAB_PARTIAL_BLOCKAGE, LAB_RAIN, LAB_SPLASHES, LAB_SUNRAY, LAB_OOF]
 
 LAB_TO_SYS = {LAB_BLUR_IMAGE: [SYS_BLUR],
@@ -222,6 +238,19 @@ LAB_TO_SPI_ALL = {LAB_BLUR_IMAGE: SYS_ALL,
                   LAB_SUNRAY: SYS_ALL,
                   LAB_OOF: SYS_ALL,
                   LAB_FREEVIEW: SYS_ALL}
+
+LAB_TO_DEGRADE = {LAB_BLUR_IMAGE: DEGRADE,
+                  LAB_FOG: DEGRADE,
+                  LAB_FROZEN_WINDSHIELD: DEGRADE,
+                  LAB_FULL_BLOCKAGE: DEGRADE,
+                  LAB_LOWSUN: DEGRADE,
+                  LAB_PARTIAL_BLOCKAGE: DEGRADE,
+                  LAB_SNOWFALL: DEGRADE,
+                  LAB_RAIN: DEGRADE,
+                  LAB_SPLASHES: DEGRADE,
+                  LAB_SUNRAY: DEGRADE,
+                  LAB_OOF: DEGRADE,
+                  LAB_FREEVIEW: DEGRADE}
 
 SYS_TO_LAB = {
     SYS_BLUR: [LAB_BLUR_IMAGE, LAB_FOG, LAB_FROZEN_WINDSHIELD, LAB_FULL_BLOCKAGE, LAB_LOWSUN, LAB_PARTIAL_BLOCKAGE, LAB_SNOWFALL, LAB_RAIN, LAB_SPLASHES, LAB_OOF, LAB_SUNRAY],
@@ -366,7 +395,7 @@ CORE_PROTOCOL_MAPPING = {
 
 FILE_NAME_PATTERN = re_filename = r'^(?P<project>adcam|hpad|conti{1})(_{1})(?P<comment>[a-z0-9]*)(_?)(?P<vin>[a-z0-9]{17})(_{1})(?P<date>[0-9]{8})(_{1})(?P<time>[0-9]{6})(_{1})(?P<extension>oth|dlt|eth|bus|tap|deb|tcd|ref|v01|v02|v03|v04|v05|v06|v07|v08|pic){0,1}(_?)(?P<number>[0-9]+)'
 
-BWD_COLUMNS = ['File_Name', 'itrk_name', 'timestamp', 'grabIndex', 'COM_Cam_Frame_ID', 'Velocity'] + LAB + SYS_ALL + CAL_ALL
+BWD_COLUMNS = ['File_Name', 'itrk_name', 'timestamp', 'grabIndex', 'COM_Cam_Frame_ID', 'Velocity'] + LAB + SYS_ALL + CAL_ALL + DEGRADE
 
 # FAILED KPI DATAFRAME NAMES -------------------------------------------------------------------------------------------
 # New failed kpi dataframe constants
@@ -403,6 +432,41 @@ ITRK_LAB_NAMES = [LAB_BLUR_IMAGE, LAB_FOG, LAB_FROZEN_WINDSHIELD, LAB_FULL_BLOCK
 
 LAB_SIG_COUNTER_COLUMNS = FAILED_KPI_FN_EVENTS + FAILED_KPI_FP_EVENTS
 
+# TP -------------------------------------------------------------------------------------
+# True positive with backup signals, if labeled causes degradation, then any backup severity that also causes degradation is true positive
+# if labeled does not cause degradation, then backup severity according to FS_Backup_Matrix.xlsx
+SEVERITY_BACKUP_SPI_DEGRADE = {
+    LAB_BLUR_IMAGE: {4: {SYS_BLUR: [4, 5], SYS_FOG: [4, 5], SYS_FROZEN_WINDSHIELD: [5], SYS_FADING_BY_SUN: [5], SYS_RAIN: [4, 5], SYS_ROAD_SPRAY: [2, 4, 5]},
+                     5: {SYS_BLUR: [4, 5], SYS_FOG: [4, 5], SYS_FROZEN_WINDSHIELD: [5], SYS_FADING_BY_SUN: [5], SYS_RAIN: [4, 5], SYS_ROAD_SPRAY: [2, 4, 5]}},
+    LAB_FOG: {2: {SYS_FOG: [2], SYS_BLUR: [4]},
+              5: {SYS_FOG: [5], SYS_BLUR: [4, 5]}},
+    LAB_FROZEN_WINDSHIELD: {2: {SYS_FROZEN_WINDSHIELD: [2, 4], SYS_BLUR: [2], SYS_FOG: [2], SYS_PARTIAL_BLOCKAGE: [2]},
+                            4: {SYS_FROZEN_WINDSHIELD: [4], SYS_BLUR: [2, 4], SYS_FOG: [2], SYS_PARTIAL_BLOCKAGE: [2, 4]},
+                            5: {SYS_FROZEN_WINDSHIELD: [5], SYS_BLUR: [4, 5], SYS_FOG: [5], SYS_FULL_BLOCKAGE: [5], SYS_PARTIAL_BLOCKAGE: [2, 4, 5]}},
+    LAB_FULL_BLOCKAGE: {5: {SYS_FULL_BLOCKAGE: [5], SYS_FROZEN_WINDSHIELD: [5], SYS_PARTIAL_BLOCKAGE: [2, 4, 5]}},
+    LAB_LOWSUN: {2: {SYS_FADING_BY_SUN: [2], SYS_SUN_RAY: [2]},
+                 4: {SYS_FADING_BY_SUN: [4], SYS_SUN_RAY: [4]},
+                 5: {SYS_FADING_BY_SUN: [5], SYS_SUN_RAY: [5]}},
+    LAB_SUNRAY: {2: {SYS_SUN_RAY: [2], SYS_FADING_BY_SUN: [2]},
+                 4: {SYS_SUN_RAY: [4], SYS_FADING_BY_SUN: [4]},
+                 5: {SYS_SUN_RAY: [5], SYS_FADING_BY_SUN: [5]}},
+    LAB_RAIN: {2: {SYS_RAIN: [2], SYS_BLUR: [4], SYS_ROAD_SPRAY: [2]},
+               4: {SYS_RAIN: [4, 5], SYS_BLUR: [4, 5], SYS_ROAD_SPRAY: [2, 4, 5]},
+               5: {SYS_RAIN: [4, 5], SYS_BLUR: [4, 5], SYS_ROAD_SPRAY: [2, 4, 5]}},
+    LAB_SNOWFALL: {2: {SYS_SNOWFALL: [2], SYS_BLUR: [4], SYS_ROAD_SPRAY: [2]},
+                   4: {SYS_SNOWFALL: [4, 5], SYS_BLUR: [4, 5], SYS_ROAD_SPRAY: [2, 4, 5]},
+                   5: {SYS_SNOWFALL: [4, 5], SYS_BLUR: [4, 5], SYS_ROAD_SPRAY: [2, 4, 5]}},
+    LAB_PARTIAL_BLOCKAGE: {2: {SYS_PARTIAL_BLOCKAGE: [2, 4, 5], SYS_FROZEN_WINDSHIELD: [2, 4, 5], SYS_FULL_BLOCKAGE: [5]},
+                           4: {SYS_PARTIAL_BLOCKAGE: [2, 4, 5], SYS_FROZEN_WINDSHIELD: [4, 5], SYS_FULL_BLOCKAGE: [5]},
+                           5: {SYS_PARTIAL_BLOCKAGE: [2, 4, 5], SYS_FROZEN_WINDSHIELD: [5], SYS_FULL_BLOCKAGE: [5]}},
+    LAB_SPLASHES: {2: {SYS_ROAD_SPRAY: [2, 4, 5], SYS_BLUR: [4, 5], SYS_RAIN: [2]},
+                   4: {SYS_ROAD_SPRAY: [2, 4, 5], SYS_BLUR: [4, 5], SYS_RAIN: [4, 5]},
+                   5: {SYS_ROAD_SPRAY: [2, 4, 5], SYS_BLUR: [4, 5], SYS_RAIN: [4, 5]}},
+    LAB_OOF: {4: {SYS_OUT_OF_FOCUS: [4, 5]},
+              5: {SYS_OUT_OF_FOCUS: [5]}}
+}
+
+# True positive with backup signals, according to FS_Backup_Matrix.xlsx
 SEVERITY_BACKUP_SPI = {
     LAB_BLUR_IMAGE: {4: {SYS_BLUR: [4], SYS_FOG: [2, 5], SYS_FROZEN_WINDSHIELD: [5], SYS_FADING_BY_SUN: [2, 5], SYS_RAIN: [4], SYS_ROAD_SPRAY: [4]},
                      5: {SYS_BLUR: [5], SYS_FOG: [5], SYS_FROZEN_WINDSHIELD: [5], SYS_FADING_BY_SUN: [5], SYS_RAIN: [5], SYS_ROAD_SPRAY: [5]}},
@@ -434,6 +498,7 @@ SEVERITY_BACKUP_SPI = {
               5: {SYS_OUT_OF_FOCUS: [5]}}
 }
 
+# True positive with backup signals, according to FS_Backup_Matrix.xlsx +/- one severity
 SEVERITY_BACKUP_SPI_ONE_LEVEL_UP_DOWN = {
     LAB_BLUR_IMAGE: {4: {SYS_BLUR: [4, 5], SYS_FOG: [2, 5], SYS_FROZEN_WINDSHIELD: [4, 5], SYS_FADING_BY_SUN: [2, 4, 5], SYS_RAIN: [2, 4, 5], SYS_ROAD_SPRAY: [2, 4, 5]},
                      5: {SYS_BLUR: [4, 5], SYS_FOG: [2, 5], SYS_FROZEN_WINDSHIELD: [4, 5], SYS_FADING_BY_SUN: [4, 5], SYS_RAIN: [4, 5], SYS_ROAD_SPRAY: [4, 5]}},
@@ -465,7 +530,7 @@ SEVERITY_BACKUP_SPI_ONE_LEVEL_UP_DOWN = {
               5: {SYS_OUT_OF_FOCUS: [4, 5]}}
 }
 
-# SPI severity +- 1 available level (no backup signals)-> according to FS_Backup_Matrix.xlsx
+# SPI severity +/- 1 available level (no backup signals)-> according to FS_Backup_Matrix.xlsx
 SEVERITY_SPI_ONE_LEVEL_UP_DOWN = {
     LAB_BLUR_IMAGE: {4: {SYS_BLUR: [4, 5]},
                      5: {SYS_BLUR: [4, 5]}},
@@ -529,28 +594,53 @@ SEVERITY_SPI_EXACT = {
               5: {SYS_OUT_OF_FOCUS: [5]}}
 }
 
+# True positive flexray verschmutzung
+FLEXRAY_VERSCHMUTZUNG = {
+    LAB_BLUR_IMAGE: {4: {SYS_VERSCHMUTZUNG_MOD: [1]},
+                     5: {SYS_VERSCHMUTZUNG_FGE: [1], SYS_VERSCHMUTZUNG_MOD: [1]}},
+    LAB_FOG: {5: {SYS_VERSCHMUTZUNG_FGE: [1], SYS_VERSCHMUTZUNG_MOD: [1]}},
+    LAB_FROZEN_WINDSHIELD: {5: {SYS_VERSCHMUTZUNG_FGE: [1], SYS_VERSCHMUTZUNG_MOD: [1]}},
+    LAB_FULL_BLOCKAGE: {5: {SYS_VERSCHMUTZUNG_FGE: [1], SYS_VERSCHMUTZUNG_MOD: [1]}},
+    LAB_LOWSUN: {5: {SYS_VERSCHMUTZUNG_FGE: [1], SYS_VERSCHMUTZUNG_MOD: [1]}},
+    LAB_SUNRAY: {5: {SYS_VERSCHMUTZUNG_FGE: [1], SYS_VERSCHMUTZUNG_MOD: [1]}},
+    LAB_RAIN: {4: {SYS_VERSCHMUTZUNG_MOD: [1]},
+               5: {SYS_VERSCHMUTZUNG_FGE: [1], SYS_VERSCHMUTZUNG_MOD: [1]}},
+    LAB_SNOWFALL: {4: {SYS_VERSCHMUTZUNG_MOD: [1]},
+                   5: {SYS_VERSCHMUTZUNG_FGE: [1], SYS_VERSCHMUTZUNG_MOD: [1]}},
+    LAB_PARTIAL_BLOCKAGE: {2: {SYS_VERSCHMUTZUNG_FGE: [1], SYS_VERSCHMUTZUNG_MOD: [1]},
+                           4: {SYS_VERSCHMUTZUNG_FGE: [1], SYS_VERSCHMUTZUNG_MOD: [1]},
+                           5: {SYS_VERSCHMUTZUNG_FGE: [1], SYS_VERSCHMUTZUNG_MOD: [1]}},
+    LAB_SPLASHES: {2: {SYS_VERSCHMUTZUNG_MOD: [1]},
+                   4: {SYS_VERSCHMUTZUNG_MOD: [1]},
+                   5: {SYS_VERSCHMUTZUNG_MOD: [1]}},
+    LAB_OOF: {4: {SYS_VERSCHMUTZUNG_FGE: [1], SYS_VERSCHMUTZUNG_MOD: [1]},
+              5: {SYS_VERSCHMUTZUNG_FGE: [1], SYS_VERSCHMUTZUNG_MOD: [1]}}
+}
+# FP -------------------------------------------------------------------------------------
 CAUSES_VERSCHMUTZUNG = {LAB_BLUR_IMAGE: [4, 5],
                         LAB_FOG: [4, 5],
                         LAB_FROZEN_WINDSHIELD: [5],
-                        LAB_FULL_BLOCKAGE: [2, 3, 5],
+                        LAB_FULL_BLOCKAGE: [2, 4, 5],
                         LAB_LOWSUN: [5],
                         LAB_SUNRAY: [5],
                         LAB_RAIN: [4, 5],
                         LAB_SNOWFALL: [4, 5],
-                        LAB_PARTIAL_BLOCKAGE: [2, 3, 5],
-                        LAB_SPLASHES: [2, 3, 5],
+                        LAB_PARTIAL_BLOCKAGE: [2, 4, 5],
+                        LAB_SPLASHES: [2, 4, 5],
                         LAB_OOF: [4, 5]
                         }
 
+# False positive if system causes degradation when it shouldn't
 FP_SEVERITY_BACKUP_VERSCHMUTZUNG = {
     SYS_BLUR: {4: CAUSES_VERSCHMUTZUNG,
                5: CAUSES_VERSCHMUTZUNG},
-    SYS_FOG: {5: CAUSES_VERSCHMUTZUNG},
+    SYS_FOG: {5: CAUSES_VERSCHMUTZUNG},  # fog 4 not output by the system
     SYS_FROZEN_WINDSHIELD: {5: CAUSES_VERSCHMUTZUNG},
     SYS_FULL_BLOCKAGE: {5: CAUSES_VERSCHMUTZUNG},
     SYS_FADING_BY_SUN: {5: CAUSES_VERSCHMUTZUNG},
     SYS_SUN_RAY: {5: CAUSES_VERSCHMUTZUNG},
-    SYS_RAIN: {5: CAUSES_VERSCHMUTZUNG},
+    SYS_RAIN: {4: CAUSES_VERSCHMUTZUNG,
+               5: CAUSES_VERSCHMUTZUNG},
     SYS_PARTIAL_BLOCKAGE: {2: CAUSES_VERSCHMUTZUNG,
                            4: CAUSES_VERSCHMUTZUNG,
                            5: CAUSES_VERSCHMUTZUNG},
@@ -561,9 +651,9 @@ FP_SEVERITY_BACKUP_VERSCHMUTZUNG = {
                        5: CAUSES_VERSCHMUTZUNG}
 }
 
-# SPI severity +- 1 available level (no backup signals)-> according to FS_Backup_Matrix.xlsx
+# False positive SPI severity +- 1 available level (no backup signals)-> according to FS_Backup_Matrix.xlsx
 FP_SEVERITY_SPI_ONE_LEVEL_UP_DOWN = {
-    SYS_BLUR: {4: {LAB_BLUR_IMAGE: [4, 5]},
+    SYS_BLUR: {4: {LAB_BLUR_IMAGE: [2, 4, 5]},
                5: {LAB_BLUR_IMAGE: [4, 5]}},
     SYS_FOG: {2: {LAB_FOG: [2, 5]},
               5: {LAB_FOG: [2, 5]}},
@@ -571,7 +661,7 @@ FP_SEVERITY_SPI_ONE_LEVEL_UP_DOWN = {
                             4: {LAB_FROZEN_WINDSHIELD: [2, 4, 5]},
                             5: {LAB_FROZEN_WINDSHIELD: [4, 5]}},
     SYS_FULL_BLOCKAGE: {5: {LAB_FULL_BLOCKAGE: [5]}},
-    SYS_FADING_BY_SUN: {2: {LAB_LOWSUN: [2, 5]},
+    SYS_FADING_BY_SUN: {2: {LAB_LOWSUN: [2, 4]},
                         4: {LAB_LOWSUN: [2, 4, 5]},
                         5: {LAB_LOWSUN: [2, 5]}},
     SYS_SUN_RAY: {2: {LAB_SUNRAY: [2, 4]},
@@ -590,9 +680,38 @@ FP_SEVERITY_SPI_ONE_LEVEL_UP_DOWN = {
                        5: {LAB_OOF: [4, 5]}}
 }
 
-# SPI exact (no backup signals)-> according to FS_Backup_Matrix.xlsx
+# False positive SPI severity with backup signals-> according to FS_Backup_Matrix.xlsx
+FP_SEVERITY_SPI = {
+    SYS_BLUR: {4: {LAB_BLUR_IMAGE: [4], LAB_FOG: [2, 5], LAB_FROZEN_WINDSHIELD: [5], LAB_LOWSUN: [2, 5], LAB_RAIN: [4], LAB_SPLASHES: [4]},
+               5: {LAB_BLUR_IMAGE: [5], LAB_FOG: [5], LAB_FROZEN_WINDSHIELD: [5], LAB_LOWSUN: [5], LAB_RAIN: [5], LAB_SPLASHES: [5]}},
+    SYS_FOG: {2: {LAB_FOG: [2], LAB_BLUR_IMAGE: [4]},
+              5: {LAB_FOG: [5], LAB_BLUR_IMAGE: [5]}},
+    SYS_FROZEN_WINDSHIELD: {2: {LAB_FROZEN_WINDSHIELD: [2], LAB_BLUR_IMAGE: [4], LAB_FOG: [2, 5], LAB_FULL_BLOCKAGE: [5], LAB_PARTIAL_BLOCKAGE: [2]},
+                            4: {LAB_FROZEN_WINDSHIELD: [4], LAB_BLUR_IMAGE: [4], LAB_FOG: [2, 5], LAB_FULL_BLOCKAGE: [5], LAB_PARTIAL_BLOCKAGE: [4]},
+                            5: {LAB_FROZEN_WINDSHIELD: [5], LAB_BLUR_IMAGE: [5], LAB_FOG: [5], LAB_FULL_BLOCKAGE: [5], LAB_PARTIAL_BLOCKAGE: [5]}},
+    SYS_FULL_BLOCKAGE: {5: {LAB_FULL_BLOCKAGE: [5], LAB_FROZEN_WINDSHIELD: [5], LAB_PARTIAL_BLOCKAGE: [5]}},
+    SYS_FADING_BY_SUN: {2: {LAB_LOWSUN: [2], LAB_SUNRAY: [2]},
+                        4: {LAB_LOWSUN: [4], LAB_SUNRAY: [4]},
+                        5: {LAB_LOWSUN: [5], LAB_SUNRAY: [5]}},
+    SYS_SUN_RAY: {2: {LAB_SUNRAY: [2], LAB_LOWSUN: [2]},
+                  4: {LAB_SUNRAY: [4], LAB_LOWSUN: [4]},
+                  5: {LAB_SUNRAY: [5], LAB_LOWSUN: [5]}},
+    SYS_RAIN: {2: {LAB_RAIN: [2], LAB_BLUR_IMAGE: [4], LAB_SPLASHES: [2]},
+               4: {LAB_RAIN: [4], LAB_BLUR_IMAGE: [4], LAB_SPLASHES: [4]},
+               5: {LAB_RAIN: [5], LAB_BLUR_IMAGE: [5], LAB_SPLASHES: [5]}},
+    SYS_PARTIAL_BLOCKAGE: {2: {LAB_PARTIAL_BLOCKAGE: [2], LAB_FROZEN_WINDSHIELD: [2]},
+                           4: {LAB_PARTIAL_BLOCKAGE: [4], LAB_FROZEN_WINDSHIELD: [4], LAB_FULL_BLOCKAGE: [5]},
+                           5: {LAB_PARTIAL_BLOCKAGE: [5], LAB_FROZEN_WINDSHIELD: [5], LAB_FULL_BLOCKAGE: [5]}},
+    SYS_ROAD_SPRAY: {2: {LAB_SPLASHES: [2], LAB_BLUR_IMAGE: [4], LAB_RAIN: [2]},
+                     4: {LAB_SPLASHES: [4], LAB_BLUR_IMAGE: [4], LAB_RAIN: [4]},
+                     5: {LAB_SPLASHES: [5], LAB_BLUR_IMAGE: [5], LAB_RAIN: [5]}},
+    SYS_OUT_OF_FOCUS: {4: {LAB_OOF: [4]},
+                       5: {LAB_OOF: [5]}}
+}
+
+# False positive SPI exact (no backup signals)-> according to FS_Backup_Matrix.xlsx
 FP_SEVERITY_SPI_EXACT = {
-    SYS_BLUR: {4: {LAB_BLUR_IMAGE: [4]},
+    SYS_BLUR: {4: {LAB_BLUR_IMAGE: [2, 4]},
                5: {LAB_BLUR_IMAGE: [5]}},
     SYS_FOG: {2: {LAB_FOG: [2]},
               5: {LAB_FOG: [5]}},

@@ -17,6 +17,8 @@ class KPIReport:
         self.totalDistanceDriven = 0
         self.totalNumberOfFrames = 0
         self.initFullNames = c.KPI_NAMES_INIT
+        if 'Snowfall' in self.initFullNames:
+            self.initFullNames.remove('Snowfall')
         self.init25 = [item + '_25' for item in self.initFullNames]
         self.init75 = [item + '_75' for item in self.initFullNames]
         self.init99 = [item + '_99' for item in self.initFullNames]
@@ -172,8 +174,8 @@ class KPIReport:
         self.resultTPRDataFrame.loc['TPRateInTime'] = self.resultTPRDataFrame.loc['FramesDetectedInTime'] / self.resultTPRDataFrame.loc['FramesLabeled'] * 100
         self.resultTPRDataFrame.loc['TestedHours'] = self.resultTPRDataFrame.loc['FramesLabeled'] / (KPIReport.FPS * 3600) #assuming 36 FPS
         # FPR
-        self.resultFPRDataFrame.loc['OverallFPRKM'] = self.resultFPRDataFrame.loc['FalseEvents'] / (self.totalDistanceDriven / 400)
-        self.resultFPRDataFrame.loc['OverallFPRPercent'] = self.resultFPRDataFrame.loc['FalseFrames'] / self.totalNumberOfFrames
+        self.resultFPRDataFrame.loc['OverallFPRKM'] = self.resultFPRDataFrame.loc['FalseEvents'] / (self.totalDistanceDriven / 1000)
+        self.resultFPRDataFrame.loc['OverallFPRPercent'] = self.resultFPRDataFrame.loc['FalseFrames'] / self.totalNumberOfFrames * 100
         self.resultFPRDataFrame.loc['OverallFPRHours'] = self.resultFPRDataFrame.loc['FalseEvents'] / ((self.totalNumberOfFrames / (KPIReport.FPS * 3600))/100)
 
         # print(self.resultTPRDataFrame)
@@ -188,49 +190,54 @@ class KPIReport:
         self.TPRformattedDF['number of scenes'] = self.resultTPRDataFrame.loc['NumberOfScenes'][self.initFullNames].values
         self.TPRformattedDF['Overall TPR'] = self.resultTPRDataFrame.loc['TPRateInTime'][self.initFullNames].values
         self.TPRformattedDF['TPR 25'] = self.resultTPRDataFrame.loc['TPRateInTime'][self.init25].values
-        self.TPRformattedDF['min. rec. time 25'] = self.resultTPRDataFrame.loc['MinRecognitionTime'][self.init25].values
-        self.TPRformattedDF['max. rec. time 25'] = self.resultTPRDataFrame.loc['MaxRecognitionTime'][self.init25].values
+        # self.TPRformattedDF['min. rec. time 25'] = self.resultTPRDataFrame.loc['MinRecognitionTime'][self.init25].values
+        # self.TPRformattedDF['max. rec. time 25'] = self.resultTPRDataFrame.loc['MaxRecognitionTime'][self.init25].values
         self.TPRformattedDF['mean. rec. time 25'] = self.resultTPRDataFrame.loc['MeanRecognitionTime'][self.init25].values
         self.TPRformattedDF['TPR 75'] = self.resultTPRDataFrame.loc['TPRateInTime'][self.init75].values
-        self.TPRformattedDF['min. rec. time 75'] = self.resultTPRDataFrame.loc['MinRecognitionTime'][self.init75].values
-        self.TPRformattedDF['max. rec. time 75'] = self.resultTPRDataFrame.loc['MaxRecognitionTime'][self.init75].values
+        # self.TPRformattedDF['min. rec. time 75'] = self.resultTPRDataFrame.loc['MinRecognitionTime'][self.init75].values
+        # self.TPRformattedDF['max. rec. time 75'] = self.resultTPRDataFrame.loc['MaxRecognitionTime'][self.init75].values
         self.TPRformattedDF['mean. rec. time 75'] = self.resultTPRDataFrame.loc['MeanRecognitionTime'][self.init75].values
         self.TPRformattedDF['TPR 99'] = self.resultTPRDataFrame.loc['TPRateInTime'][self.init99].values
-        self.TPRformattedDF['min. rec. time 99'] = self.resultTPRDataFrame.loc['MinRecognitionTime'][self.init99].values
-        self.TPRformattedDF['max. rec. time 99'] = self.resultTPRDataFrame.loc['MaxRecognitionTime'][self.init99].values
+        # self.TPRformattedDF['min. rec. time 99'] = self.resultTPRDataFrame.loc['MinRecognitionTime'][self.init99].values
+        # self.TPRformattedDF['max. rec. time 99'] = self.resultTPRDataFrame.loc['MaxRecognitionTime'][self.init99].values
         self.TPRformattedDF['mean. rec. time 99'] = self.resultTPRDataFrame.loc['MeanRecognitionTime'][self.init99].values
         
-        self.TPRformattedDF['min. rec. time 25'].loc[self.TPRformattedDF['min. rec. time 25'] == 9999] = np.nan
-        self.TPRformattedDF['max. rec. time 25'].loc[self.TPRformattedDF['max. rec. time 25'] == 0] = np.nan
-        self.TPRformattedDF['min. rec. time 75'].loc[self.TPRformattedDF['min. rec. time 75'] == 9999] = np.nan
-        self.TPRformattedDF['max. rec. time 75'].loc[self.TPRformattedDF['max. rec. time 75'] == 0] = np.nan
-        self.TPRformattedDF['min. rec. time 99'].loc[self.TPRformattedDF['min. rec. time 99'] == 9999] = np.nan
-        self.TPRformattedDF['max. rec. time 99'].loc[self.TPRformattedDF['max. rec. time 99'] == 0] = np.nan
+        # self.TPRformattedDF['min. rec. time 25'].loc[self.TPRformattedDF['min. rec. time 25'] == 9999] = np.nan
+        # self.TPRformattedDF['max. rec. time 25'].loc[self.TPRformattedDF['max. rec. time 25'] == 0] = np.nan
+        # self.TPRformattedDF['min. rec. time 75'].loc[self.TPRformattedDF['min. rec. time 75'] == 9999] = np.nan
+        # self.TPRformattedDF['max. rec. time 75'].loc[self.TPRformattedDF['max. rec. time 75'] == 0] = np.nan
+        # self.TPRformattedDF['min. rec. time 99'].loc[self.TPRformattedDF['min. rec. time 99'] == 9999] = np.nan
+        # self.TPRformattedDF['max. rec. time 99'].loc[self.TPRformattedDF['max. rec. time 99'] == 0] = np.nan
         print(self.TPRformattedDF)
         # endregion
 
         # region FPR excel formatter
-        self.resultFPRDataFrame.loc['threshold'] = '<1/100h' # this line is only to generate column names for the excel
+        self.resultFPRDataFrame.loc['threshold'] = '<1/100h'  # this line is only to generate column names for the excel
         self.FPRformattedDF['deleteMe'] = self.resultFPRDataFrame.loc['threshold'][self.initFullNames]  # this column is deleted at the end of block
         self.FPRformattedDF['hours'] = self.totalNumberOfFrames / (KPIReport.FPS * 3600)
         self.FPRformattedDF['kilometers'] = self.totalDistanceDriven
         self.FPRformattedDF['number of scenes'] = self.totalNumberOfFrames / (KPIReport.FPS * 60)
-        self.FPRformattedDF['Overall FPR (1/400 km)'] = self.resultFPRDataFrame.loc['OverallFPRKM']
-        self.FPRformattedDF['Overall FPR (percentage)'] = self.resultFPRDataFrame.loc['OverallFPRPercent']
-        self.FPRformattedDF['Overall FPRHours'] = self.resultFPRDataFrame.loc['OverallFPRHours']
-        self.FPRformattedDF['false events 25'] = self.resultFPRDataFrame.loc['FalseEvents'][self.init25].values
-        self.FPRformattedDF['MTBF 25'] = self.resultFPRDataFrame.loc['MTBF'][self.init25].values
-        self.FPRformattedDF['FPRKM 25'] = self.resultFPRDataFrame.loc['OverallFPRKM'][self.init25].values
-        self.FPRformattedDF['FPRHours 25'] = self.resultFPRDataFrame.loc['OverallFPRHours'][self.init25].values
-        self.FPRformattedDF['false events 75'] = self.resultFPRDataFrame.loc['FalseEvents'][self.init75].values
-        self.FPRformattedDF['MTBF 75'] = self.resultFPRDataFrame.loc['MTBF'][self.init75].values
-        self.FPRformattedDF['FPRKM 75'] = self.resultFPRDataFrame.loc['OverallFPRKM'][self.init75].values
-        self.FPRformattedDF['FPRHours 75'] = self.resultFPRDataFrame.loc['OverallFPRHours'][self.init75].values
-        self.FPRformattedDF['false events 99'] = self.resultFPRDataFrame.loc['FalseEvents'][self.init99].values
-        self.FPRformattedDF['MTBF 99'] = self.resultFPRDataFrame.loc['MTBF'][self.init99].values
-        self.FPRformattedDF['FPRKM 99'] = self.resultFPRDataFrame.loc['OverallFPRKM'][self.init99].values
-        self.FPRformattedDF['FPRHours 99'] = self.resultFPRDataFrame.loc['OverallFPRHours'][self.init99].values
+        self.FPRformattedDF['FP Events / 1000 km'] = self.resultFPRDataFrame.loc['OverallFPRKM']
+        self.FPRformattedDF['FP h / 100h'] = self.resultFPRDataFrame.loc['OverallFPRPercent']
+        self.FPRformattedDF['FP Events / 100h'] = self.resultFPRDataFrame.loc['OverallFPRHours']
+
+        self.FPRformattedDF['False events 25'] = self.resultFPRDataFrame.loc['FalseEvents'][self.init25].values
+        self.FPRformattedDF['FP 25 Events / 1000 km'] = self.resultFPRDataFrame.loc['OverallFPRKM'][self.init25].values
+        self.FPRformattedDF['FP 25 h / 100h'] = self.resultFPRDataFrame.loc['OverallFPRPercent'][self.init25].values
+        self.FPRformattedDF['FP 25 Events / 100h'] = self.resultFPRDataFrame.loc['OverallFPRHours'][self.init25].values
+
+        self.FPRformattedDF['False events 75'] = self.resultFPRDataFrame.loc['FalseEvents'][self.init75].values
+        self.FPRformattedDF['FP 75 Events / 1000 km'] = self.resultFPRDataFrame.loc['OverallFPRKM'][self.init75].values
+        self.FPRformattedDF['FP 75 h / 100h'] = self.resultFPRDataFrame.loc['OverallFPRPercent'][self.init75].values
+        self.FPRformattedDF['FP 75 Events / 100h'] = self.resultFPRDataFrame.loc['OverallFPRHours'][self.init75].values
+
+        self.FPRformattedDF['False events 99'] = self.resultFPRDataFrame.loc['FalseEvents'][self.init99].values
+        self.FPRformattedDF['FP 99 Events / 1000 km'] = self.resultFPRDataFrame.loc['OverallFPRKM'][self.init99].values
+        self.FPRformattedDF['FP 99 h / 100h'] = self.resultFPRDataFrame.loc['OverallFPRPercent'][self.init99].values
+        self.FPRformattedDF['FP 99 Events / 100h'] = self.resultFPRDataFrame.loc['OverallFPRHours'][self.init99].values
+
         self.FPRformattedDF.drop(columns=['deleteMe'], inplace=True)  # deleting obsolete column
+        self.FPRformattedDF.drop(index=['Free View'], inplace=True)  # deleting Free View row
         print(self.FPRformattedDF)
         #endregion
 
